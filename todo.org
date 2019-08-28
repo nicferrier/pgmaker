@@ -1,0 +1,9 @@
+
+
+* create a database for recording what databases we've got
+** owned by postgres
+
+* make API for creating databases
+** you need to be in the keepie
+** you pass in your url to get the secret back
+** we make or extend the timeout on your db to 1 month from today

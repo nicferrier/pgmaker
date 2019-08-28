@@ -13,24 +13,29 @@ const postgresDist = {
     dataDir: path.join(__dirname, "pg-data")
 };
 
-
-const startPg = async function () {
+const startIt = async function () {
     const address = await getFreePort();
     const port = address.port;
 
     const password = "This is a Secret";
 
     const config = path.join(postgresDist.dataDir, "postgresql.conf");
-    const file = await fs.promises.readFile(config, "utf-8");
-
-    const portChanged = file.replace(
+    const configFile = await fs.promises.readFile(config, "utf-8");
+    const portChanged = configFile.replace(
             /^[#]*port = .*/gm, `port = ${port}`
     ).replace(
             /^[#]*unix_socket_directories = .*/gm,
         `unix_socket_directories = '${postgresDist.runDir}'`
     );
-
     await fs.promises.writeFile(config, portChanged);
+
+    const hba = path.join(postgresDist.dataDir, "pg_hba.conf");
+    const hbaFile = await fs.promises.readFile(hba, "utf-8");
+    const methodChanged = hbaFile.replace(
+            /^host[ \t](.*)[ \t]::1\/128[ \t]+trust$/gm, `host $1 ::1\/128 password`
+    );
+    await fs.promises.writeFile(hba, methodChanged);
+
 
     const exePath = path.join(postgresDist.binDir, "postgres");
 
@@ -80,6 +85,10 @@ const startPg = async function () {
             });
         }
 
+        const [pwErr, pwResult] = await client.query(
+            `alter role postgres with password '${password}';`
+        ).then(r => [undefined, r]).catch(e => [e]);
+        
         // ... else we're all good!
         connectTested = true;
         await client.end().catch(e => console.log("error ending!", e));
@@ -90,17 +99,20 @@ const startPg = async function () {
         process.exit(1);
     }
 
-    return pgChild;
+    return [pgChild, pgConfig];
 };
 
+module.exports = startIt;
 
-startPg().then(async pgChild => {
-    const onExit = proc => pgChild.on("exit", proc);
-    await new Promise((resolve, reject) => {
-        onExit(resolve);
-    });
-    console.log("done!");
-});
+if (require.main === module) {
+    startIt()
+        .then(async ([childProcess, password]) => { 
+            const onExit = proc => childProcess.on("exit", proc);
+            await new Promise((resolve, reject) => {
+                onExit(resolve);
+            });
+            console.log("done!");
+        });
+}
 
 // End
-
