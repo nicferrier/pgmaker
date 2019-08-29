@@ -5,7 +5,7 @@ const startPg = require("./startpg.js");
 const { Pool } = require("pg");
 const fetch = require("node-fetch");
 
-const dbNameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_-]+$");
+const dbNameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]+$");
 const encodingRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9._-]+$");
 
 exports.fileBasedKeepie = _ => {
@@ -18,6 +18,8 @@ const boot = async function (opts = {}) {
         keepieConfigFn=exports.fileBasedKeepie,
         keepieIntervalMs=60 * 1000
     } = opts;
+
+    // Start the postgres
     const [pgProcess, pgConfig] = await startPg();
     const pool = new Pool(pgConfig);
 
@@ -103,7 +105,10 @@ const boot = async function (opts = {}) {
                 }
             }
 
+            console.log("pg config is", pgConfig);
             const receiptData = new url.URLSearchParams({
+                host: pgConfig.host,
+                port: pgConfig.port,
                 database: name,
                 user: name,
                 password
@@ -131,9 +136,14 @@ const boot = async function (opts = {}) {
         },
 
         close: function () {
-            pgProcess.kill();
-            clearInterval(keepieInterval);
+            // Stop accepting new requests
             listener.close();
+            // Stop processing the queue - we should probably clear the queue
+            clearInterval(keepieInterval);
+            // Kill the postgres
+            pgProcess.kill();
+            // Kill the keepie interval
+            clearInterval(keepieConfigInterval);
         },
 
         promise: async function () {
