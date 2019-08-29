@@ -42,21 +42,17 @@ const test = async function () {
     // Assertions
     try {
         assert.ok(resultParams.name = "nics_test_db")
+
+        // Try and connect
         const dbConfig = {}
         for (const [name, value] of resultParams) {
             dbConfig[name]=value;
         }
         const client = new Client(dbConfig);
-        assert.doesNotThrow(async function () {
-            client.connect();
-            client.end;
-        try {
-            await client.connect();
-            client.end();
-        }
-        catch (e) {
-            assert.ok(false, `failed to connect with ${resultParams}`);
-        }
+        const [clientErr] = await client.connect()
+              .then(_ => [undefined, client.end()]) // This is like a finally
+              .catch(e => [e]);
+        assert.ok(clientErr === undefined);
     }
     finally {
         mainObject.close();
