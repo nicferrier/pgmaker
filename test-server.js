@@ -8,12 +8,18 @@ const main = require("./main.js");
 const app = express();
 
 const test = async function () {
+    const listener = app.listen(0);
+    const thisPort = listener.address().port;
+    
     const mainObject = await main({
-        keepieConfigFn: _ => { return Promise.resolve({}) },
+        keepieConfigFn: _ => { return Promise.resolve({
+            [`http://localhost:${thisPort}/keepie/password`]: "nics_test_db"
+        }) },
         keepieIntervalMs: 2*1000
     });
 
-    let listener;
+    const pgMakerPort = mainObject.getPort();
+
     const [error, resultParams] = await new Promise(async (resolve, reject) => {
         app.post("/keepie/password", async function (req, res) {
             let dataBuf="";
@@ -25,10 +31,6 @@ const test = async function () {
             resolve(postParams);
         })
 
-        const pgMakerPort = mainObject.getPort();
-        listener = app.listen(0);
-        const thisPort = listener.address().port;
-        
         const response = await fetch(`http://localhost:${pgMakerPort}/db/pg`, {
             method: "POST",
             body: new url.URLSearchParams({

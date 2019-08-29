@@ -24,9 +24,9 @@ const boot = async function (opts = {}) {
     const pool = new Pool(pgConfig);
 
     // Read in the keepie config file a lot
-    let config;
+    let keepieConfig;
     const readConfig = _ => {
-        keepieConfigFn().then(configData => config = configData);
+        keepieConfigFn().then(configData => keepieConfig = configData);
     };
     await readConfig();
     const keepieConfigInterval = setInterval(readConfig, keepieIntervalMs);
@@ -49,6 +49,13 @@ const boot = async function (opts = {}) {
             collate: postParams.get("collate")
         };
 
+        // Protect things getting into the config
+        if (keepieConfig[createParams.receiptUrl] !== createParams.name) {
+            return res
+                .status(400)
+                .send(`Your receipt-url '${createParams.receiptUrl}' is not registered.`);
+        }
+
         if (!dbNameRegex.test(createParams.name)
             || !encodingRegex.test(createParams.encoding)) {
             return res
@@ -57,7 +64,7 @@ const boot = async function (opts = {}) {
         }
 
         const status = databases[createParams.name] === undefined ? 202 : 204;
-
+        
         console.log("database created", createParams.name, status);
 
         createQueue.push(createParams);
