@@ -81,23 +81,24 @@ Postgres might be installed in all sorts of ways. PgMaker expects the
 following things:
 
 * the postgres binaries are installed somewhere, we execute `postgres` from there 
- * we try the `$PG_BIN` path
- * we try the `$PG_HOME/bin` path
- * we try the `$PG_HOME/pgsql/bin` path
+  * we try the `$PG_BIN` path
+  * we try the `$PG_HOME/bin` path
+  * we try the `$PG_HOME/pgsql/bin` path
 * the postgres libraries are installed somewhere, we set the `LD_LIBRARY_PATH` to that
- * we try the `$PG_LIB` path
- * we try the `$PG_HOME/lib` path
- * we try the `$PG_HOME/pgsql/lib` path
+  * we try the `$PG_LIB` path
+  * we try the `$PG_HOME/lib` path
+  * we try the `$PG_HOME/pgsql/lib` path
 * a `run` directory for containing the temporary unix socket must exist
- * we try the `$PG_TEMP` path
- * we try the `$PG_RUN` path
- * we try the `$PG_HOME/run` path
+  * we try the `$PG_TEMP` path
+  * we try the `$PG_RUN` path
+  * we try the `$PG_DATA/run` path
+  * we try the `$PG_HOME/run` path
 * a `data` directory where we will create the postgres instance
- * we try the `$PG_DATA` path
- * we try the `$PG_HOME/datadir` path
- * we try the `$PG_HOME/pgsql/datadir` path
- * we try the `$PG_HOME/data` path
- * we try the `$PG_HOME/pgsql/data` path
+  * we try the `$PG_DATA` path
+  * we try the `$PG_HOME/datadir` path
+  * we try the `$PG_HOME/pgsql/datadir` path
+  * we try the `$PG_HOME/data` path
+  * we try the `$PG_HOME/pgsql/data` path
 
 Notice that more specific environment variables take precedence over
 less specific ones.
