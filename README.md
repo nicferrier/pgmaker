@@ -118,7 +118,8 @@ do you do that?
 
 In this repository there is a script `initdb.sh` which creates a
 Postgres installation for PgMaker from the official PostgreSQL
-project's tarball available for download [here](http://where?).
+project's tarball available for download
+[here](https://www.postgresql.org/ftp/source/).
 
 This might also work on Windows with a Windows distribution of
 Postgres.
