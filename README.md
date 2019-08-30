@@ -61,7 +61,7 @@ root of that repository and it's a JSON file that looks like this:
 
 ```database-authorizations.json
 {
-   "http://some-server-that-wants-a-db.example.com:8000/password": "the_db_it_wants"
+   "http://some-server-that-wants-a-db.example.com:8000/password": "the_db_it_wants",
    "http://server-needs-people-db.example.com:6001/receive": "people_db",
    "http://another-server-needs-people-db.example.com:6002/password": "people_db"
 }
