@@ -1,12 +1,16 @@
 {
   "name": "@nicferrier/pgmaker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Helps make services which can makes postgres databases.",
   "main": "main.js",
   "scripts": {
     "test": "node test-server.js && exit 1"
   },
-  "keywords": ["database", "postgres", "pg"],
+  "keywords": [
+    "database",
+    "postgres",
+    "pg"
+  ],
   "author": "Nic Ferrier <ferriernic@gmail.com>",
   "license": "ISC",
   "dependencies": {
