@@ -56,7 +56,21 @@ if (require.main === module) {
 }
 ```
 
-where the file called `database-authorizations.json` does exist ih the
-root of that repository and it's a JSON file.
+where the file called `database-authorizations.json` does exist in the
+root of that repository and it's a JSON file that looks like this:
 
+```database-authorizations.json
+{
+   "http://some-server-that-wants-a-db.example.com:8000/password": "the_db_it_wants"
+   "http://server-needs-people-db.example.com:6001/receive": "people_db",
+   "http://another-server-needs-people-db.example.com:6002/password": "people_db"
+}
+```
 
+This would allow `some-server-that-wants-a-db.example.com` to request
+`the_db_it_wants` and receive the password on it's port 8000 on the
+path `/password` and for `server-needs-people-db.example.com` and
+`another-server-needs-people-db.example.com` to request `people_db`
+and receive it's connection details, including the secret, on their
+ports `6001` and `6002` respectively and their respective paths
+`/receive` and `/password`.
