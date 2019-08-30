@@ -8,15 +8,20 @@ const fetch = require("node-fetch");
 const dbNameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]+$");
 const encodingRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9._-]+$");
 
-exports.fileBasedKeepie = _ => {
-    return fs.promises.readFile("keepie-config.json", "utf8")
-        .then(configText => JSON.parse(configData))
+exports.keepieConfigFileMaker = function (fileName) {
+    return _ => {
+        return fs.promises.readFile(fileName, "utf8")
+            .then(configText => JSON.parse(configData))
+    };
 };
+
+exports.fileBasedKeepie = exports.keepieConfigFileMaker("keepie-config.json");
 
 const boot = async function (opts = {}) {
     const {
-        keepieConfigFn=exports.fileBasedKeepie,
-        keepieIntervalMs=60 * 1000
+        keepieConfigFn = exports.fileBasedKeepie,
+        keepieIntervalMs = 60 * 1000,
+        apiPort = 0
     } = opts;
 
     // Start the postgres
@@ -112,7 +117,6 @@ const boot = async function (opts = {}) {
                 }
             }
 
-            console.log("pg config is", pgConfig);
             const receiptData = new url.URLSearchParams({
                 host: pgConfig.host,
                 port: pgConfig.port,
@@ -120,6 +124,7 @@ const boot = async function (opts = {}) {
                 user: name,
                 password
             });
+
             const receiptResponse = await fetch(receiptUrl, {
                 method: "POST",
                 body: receiptData
@@ -129,9 +134,9 @@ const boot = async function (opts = {}) {
             return receiptResponse.status;
         }
     };
-    const keepieInterval = setInterval(keepieProcessor, keepieIntervalMs);
 
-    const listener = app.listen(0);
+    const keepieInterval = setInterval(keepieProcessor, keepieIntervalMs);
+    const listener = app.listen(apiPort);
 
     return {
         getPort: function () {
