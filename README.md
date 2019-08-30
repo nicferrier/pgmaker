@@ -74,3 +74,107 @@ path `/password` and for `server-needs-people-db.example.com` and
 and receive it's connection details, including the secret, on their
 ports `6001` and `6002` respectively and their respective paths
 `/receive` and `/password`.
+
+## How PgMaker finds your postgres
+
+Postgres might be installed in all sorts of ways. PgMaker expects the
+following things:
+
+* the postgres binaries are installed somewhere, we execute `postgres` from there 
+ * we try the `$PG_BIN` path
+ * we try the `$PG_HOME/bin` path
+ * we try the `$PG_HOME/pgsql/bin` path
+* the postgres libraries are installed somewhere, we set the `LD_LIBRARY_PATH` to that
+ * we try the `$PG_LIB` path
+ * we try the `$PG_HOME/lib` path
+ * we try the `$PG_HOME/pgsql/lib` path
+* a `run` directory for containing the temporary unix socket must exist
+ * we try the `$PG_TEMP` path
+ * we try the `$PG_RUN` path
+ * we try the `$PG_HOME/run` path
+* a `data` directory where we will create the postgres instance
+ * we try the `$PG_DATA` path
+ * we try the `$PG_HOME/datadir` path
+ * we try the `$PG_HOME/pgsql/datadir` path
+ * we try the `$PG_HOME/data` path
+ * we try the `$PG_HOME/pgsql/data` path
+
+Notice that more specific environment variables take precedence over
+less specific ones.
+
+
+We don't need a permanent tcp port for postgres, we just allocate one
+dynamically.
+
+
+## What's the ideal setup for Postgres?
+
+To do any of this you need to have Postgres installed. So first, how
+do you do that?
+
+
+### Installing a PostgreSQL distribution
+
+In this repository there is a script `initdb.sh` which creates a
+Postgres installation for PgMaker from the official PostgreSQL
+project's tarball available for download [here](http://where?).
+
+This might also work on Windows with a Windows distribution of
+Postgres.
+
+Another way is to use a yum or apt distribution and unpack the
+packaged RPM or DPKG file somewhere.
+
+Advantages of these two ways of installing Postgres are:
+
+* you don't need root to do it
+* you can choose to install it anywhere
+* you can easily run multiple different versions
+
+Another way is to install Postgresql on your operating system. This
+might sometimes be easier but:
+
+* usually requires root privilege
+* sometimes doesn't allow multiple versions
+
+For development purposes, when running outside secure environments, I
+recommend running a tarball distribution.
+
+For production or inside secure environments (like large enterprises)
+I recommend downloading an RPM and unpacking it to a location.
+
+Postgres usually does not need any installation time scripts to make
+it work, so this is the best approach.
+
+
+### And then how to set it up?
+
+The initdb.sh in this repository depends on the structure of the
+postgresql tar file which unwraps with a `pgsql` directory containing
+all the binaries, so we have this:
+
+```shell-script
+export PG_HOME=${PG_HOME:-./pg-dist}
+export PG_DATA=${PG_DATA:-./pg-data}
+
+$PG_HOME/pgsql/bin/initdb -D $PG_DATA -E=UTF8 --locale=C -U postgres
+mkdir -p $PG_DATA/run
+```
+
+The run directory needs to be present and it is not normally. 
+
+Often $TEMP is used for the run directory by default by
+Postgres. However, because postgres creates important files that have
+security risks (like unix socket endpoints) in the directory I've
+chosen to make it specific.
+
+So, in summary:
+
+* get a postgresql distribution from a tar or RPM
+* set PG_HOME to the base directory of that
+* choose a location to install a postgres instance
+* set PG_DATA to the base directory of that
+* run postgres `initdb -D $PG_DATA postgres` to create the instance
+* `mkdir $PG_DATA/run` to make the run directory
+* start PgMaker
+

@@ -1,4 +1,5 @@
 const assert = require("assert");
+const path = require("path");
 const url = require("url");
 const express = require("express");
 const fetch = require("node-fetch");
@@ -10,6 +11,11 @@ const app = express();
 const test = async function () {
     const listener = app.listen(0);
     const thisPort = listener.address().port;
+
+    // Set the environment variable the way initdb.sh sets it
+    process.env.PG_HOME = path.join(__dirname, "pg-dist");
+    process.env.PG_DATA = path.join(__dirname, "pg-data");
+    process.env.PG_RUN = path.join(__dirname, "pg-data", "run");
     
     const mainObject = await main({
         keepieConfigFn: _ => { return Promise.resolve({

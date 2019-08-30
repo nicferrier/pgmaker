@@ -3,17 +3,11 @@ const path = require("path");
 const {getFreePort} = require("./utils.js");
 const {spawn} = require("child_process");
 const { Client } = require('pg');
-
-// This should be configurable somehow, so we can set different
-// locations for things
-const postgresDist = {
-    binDir: path.join(__dirname, "pg-dist", "pgsql", "bin"),
-    libDir: path.join(__dirname, "pg-dist", "pgsql", "lib"),
-    runDir: path.join(__dirname, "pg-data", "run"),
-    dataDir: path.join(__dirname, "pg-data")
-};
+const env = require("./env.js");
 
 const startIt = async function () {
+    const postgresDist = env();
+
     const address = await getFreePort();
     const port = address.port;
 
