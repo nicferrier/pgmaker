@@ -165,7 +165,7 @@ mkdir -p $PG_DATA/run
 
 The run directory needs to be present and it is not normally. 
 
-Often $TEMP is used for the run directory by default by
+Often `$TEMP` is used for the run directory by default by
 Postgres. However, because postgres creates important files that have
 security risks (like unix socket endpoints) in the directory I've
 chosen to make it specific.
@@ -173,9 +173,9 @@ chosen to make it specific.
 So, in summary:
 
 * get a postgresql distribution from a tar or RPM
-* set PG_HOME to the base directory of that
+* set `PG_HOME` to the base directory of that
 * choose a location to install a postgres instance
-* set PG_DATA to the base directory of that
+* set `PG_DATA` to the base directory of that
 * run postgres `initdb -D $PG_DATA postgres` to create the instance
 * `mkdir $PG_DATA/run` to make the run directory
 * start PgMaker
