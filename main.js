@@ -8,18 +8,18 @@ const fetch = require("node-fetch");
 const dbNameRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9_]+$");
 const encodingRegex = new RegExp("^[a-zA-Z][a-zA-Z0-9._-]+$");
 
-exports.keepieConfigFileMaker = function (fileName) {
+const keepieConfigFileMaker = function (fileName) {
     return _ => {
         return fs.promises.readFile(fileName, "utf8")
-            .then(configText => JSON.parse(configData))
+            .then(configText => JSON.parse(configText))
     };
 };
 
-exports.fileBasedKeepie = exports.keepieConfigFileMaker("keepie-config.json");
+const fileBasedKeepie = keepieConfigFileMaker("keepie-config.json");
 
 const boot = async function (opts = {}) {
     const {
-        keepieConfigFn = exports.fileBasedKeepie,
+        keepieConfigFn = fileBasedKeepie,
         keepieIntervalMs = 60 * 1000,
         apiPort = 0
     } = opts;
@@ -30,8 +30,9 @@ const boot = async function (opts = {}) {
 
     // Read in the keepie config file a lot
     let keepieConfig;
-    const readConfig = _ => {
-        keepieConfigFn().then(configData => keepieConfig = configData);
+    const readConfig = async _ => {
+        const cfgData = await keepieConfigFn();
+        keepieConfig = cfgData;
     };
     await readConfig();
     const keepieConfigInterval = setInterval(readConfig, keepieIntervalMs);
@@ -170,6 +171,9 @@ const boot = async function (opts = {}) {
 
 
 module.exports = boot;
+
+boot.keepieConfigFileMaker = keepieConfigFileMaker;
+boot.fileBasedKeepie = fileBasedKeepie;
 
 if (require.main === module) {
     boot(); // Starts with defaults

@@ -9,7 +9,7 @@ export PG_BIN=${PG_BIN:-$PG_HOME/pgsql/bin}
 
 export PG_DATA=${PG_DATA:-./pg-data}
 
-$PG_BIN/initdb -D $PG_DATA -E=UTF8 --locale=C -U postgres
+[ -d $PG_DATA ] || $PG_BIN/initdb -D $PG_DATA -E=UTF8 --locale=C -U postgres
 mkdir -p $PG_DATA/run
 
 # End

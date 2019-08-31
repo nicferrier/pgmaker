@@ -50,7 +50,7 @@ const testEnv = function(environ=process.env) {
             || undefined,
         runDir: access(envPgTemp, READ)
             || access(envPgRun, READ)
-            || acccess(envPgData_run, READ)
+            || access(envPgData_run, READ)
             || access(envPgHome_run, READ)
             || access(envPgHome_pgsql_run, READ)
             || undefined,
