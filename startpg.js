@@ -35,7 +35,7 @@ const startIt = async function () {
 
     let pgChild = spawn(exePath, ["-D", postgresDist.dataDir], {
         env: {
-            "LD_LIBRARY_PATH": postgresDist.libDir
+            "LD_LIBRARY_PATH": [process.env.LD_LIBRARY_PATH, postgresDist.libDir].join(":")
         }
     });
     pgChild.stdout.pipe(process.stdout);
