@@ -137,8 +137,13 @@ const boot = async function (opts = {}) {
     };
 
     const keepieInterval = setInterval(keepieProcessor, keepieIntervalMs);
-    const listener = app.listen(apiPort);
-
+    const listener = (
+        (opts.pfx !== undefined && opts.passphrase !== undefined)
+            || (opts.key !== undefined && opts.cert !== undefined)
+    )
+          ? https.createServer(opts, app).listen(apiPort)
+          : app.listen(apiPort);
+    
     return {
         getPort: function () {
             return listener.address().port;

@@ -75,6 +75,39 @@ and receive it's connection details, including the secret, on their
 ports `6001` and `6002` respectively and their respective paths
 `/receive` and `/password`.
 
+### How to start a TLS server
+
+You can start a TLS server for PgMaker by supplying either of the
+options you need to start a tls server, either `pfx`:
+
+```javascript
+const pkcs12 = ... ;         // Presumably read it from a file or something
+const pkcs12password = ... ; // likewise
+pgmaker({
+   keepieConfigFn: pgmaker.keepieConfigFileMaker(keepieConfigFileName),
+   pfx: Buffer.from(pkcs12, "base64"), 
+   passphrase: pkcs12password
+})
+```
+
+or a private key and a cert:
+
+```javascript
+const tlsOpts = {          // Presumably all come from a file
+  key: privateKeyInPem,
+  cert, 
+  ca
+};
+pgmaker(Object.assign({
+   keepieConfigFn: pgmaker.keepieConfigFileMaker(keepieConfigFileName)
+}, tlsOpts));
+```
+
+By preference this uses `pfx` certs if it finds the options for them.
+
+If you do not specify tls options then an `http` server is made.
+
+
 ## How PgMaker finds your postgres
 
 Postgres might be installed in all sorts of ways. PgMaker expects the
