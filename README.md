@@ -107,6 +107,29 @@ By preference this uses `pfx` certs if it finds the options for them.
 
 If you do not specify tls options then an `http` server is made.
 
+### How to add routes to your PgMaker service
+
+PgMaker provides pass through functions for it's internal express
+app's `get`, `post`, `delete` and `head` so you can write code like
+this:
+
+```javascript
+const pkcs12 = ... ;         // Presumably read it from a file or something
+const pkcs12password = ... ; // likewise
+pgmaker({
+   keepieConfigFn: pgmaker.keepieConfigFileMaker(keepieConfigFileName),
+   pfx: Buffer.from(pkcs12, "base64"), 
+   passphrase: pkcs12password
+}).then(pgMakerService => {
+   pgMakerService.get("/", function (req,res) {
+      res.send("<h1>PgMaker!</h1><p>Create databases easily!</p>");
+   });
+});
+```
+
+See [Express documentation](https://expressjs.com/en/4x) for more
+details on how to write express handlers.
+
 
 ## How PgMaker finds your postgres
 

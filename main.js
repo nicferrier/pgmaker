@@ -153,6 +153,28 @@ const boot = async function (opts = {}) {
             return databases;
         },
 
+        post: async function() {
+            const result = await app.post.apply(app, arguments);
+            return result;
+        },
+
+        get: async function() {
+            const result = await app.get.apply(app, arguments);
+            return result;
+        },
+
+        delete: async function() {
+            const result = await app.post.apply(app, arguments);
+            return result;
+        },
+
+        head: async function() {
+            const result = await app.post.apply(app, arguments);
+            return result;
+        },
+
+
+
         close: function () {
             // Stop accepting new requests
             listener.close();

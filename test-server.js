@@ -24,6 +24,15 @@ const test = async function () {
         keepieIntervalMs: 2*1000
     });
 
+    // Add a route to the pgmaker service app
+    const started = new Date();
+    mainObject.get("/status", function (req,res) {
+        res.json({
+            port: mainObject.getPort(),
+            upTime: new Date().valueOf() - started.valueOf()
+        });
+    });
+
     const pgMakerPort = mainObject.getPort();
 
     const [error, resultParams] = await new Promise(async (resolve, reject) => {
@@ -51,7 +60,7 @@ const test = async function () {
     try {
         assert.ok(resultParams.name = "nics_test_db")
 
-        // Try and connect
+        // Try and connect to what we got back
         const dbConfig = {}
         for (const [name, value] of resultParams) {
             dbConfig[name]=value;
@@ -60,7 +69,18 @@ const test = async function () {
         const [clientErr] = await client.connect()
               .then(_ => [undefined, client.end()]) // This is like a finally
               .catch(e => [e]);
+
         assert.ok(clientErr === undefined);
+
+        // Now try and use the route we added
+        const routeResponse = await fetch(`http://localhost:${pgMakerPort}/status`);
+        assert.ok(routeResponse.status === 200);
+
+        const data = await routeResponse.json();
+        console.log("extra route data", data);
+
+        assert.ok(data.port = pgMakerPort);
+        assert.ok(data.upTime < (new Date().valueOf() - started.valueOf()));
     }
     finally {
         mainObject.close();
