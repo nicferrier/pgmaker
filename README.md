@@ -59,7 +59,7 @@ if (require.main === module) {
 where the file called `database-authorizations.json` does exist in the
 root of that repository and it's a JSON file that looks like this:
 
-```database-authorizations.json
+```javsscript
 {
    "http://some-server-that-wants-a-db.example.com:8000/password": "the_db_it_wants",
    "http://server-needs-people-db.example.com:6001/receive": "people_db",
@@ -235,4 +235,68 @@ So, in summary:
 * run postgres `initdb -D $PG_DATA postgres` to create the instance
 * `mkdir $PG_DATA/run` to make the run directory
 * start PgMaker
+
+
+## How to make a PgMaker 'client'
+
+The [test-server.js file](test-server.js) defines how to do that, but
+it may look a bit complicated in the context of a test so here is a
+clearer example:
+
+```javascript
+const fs = require("fs");
+const os = require("os");
+const express = require("express");
+const fetch = require("node-fetch");
+const app = express();
+
+const thisPort = 7050;
+
+// Handler to receive the connection details
+app.post("/my-pg-connection-details", async function (req, res) {
+    let dataBuf="";
+    req.on("data", chunk => dataBuf = dataBuf + new String(chunk, "utf8"));
+    await new Promise((resolve, reject) => req.on("end", resolve));
+    const postParams = new url.URLSearchParams(dataBuf);
+
+    // Presumably we'll do something with these params...
+    //
+    // Perhaps we write them to a settings file and start another app?
+    fs.writeFileSync("postgres-connect-options.conf", postParams);
+
+    res.sendStatus(204);
+});
+
+// Start the service
+const listener = app.listen(thisPort);
+
+// Send a request to wherever PgMaker is, for a database
+const response = await fetch(`http://localhost:${pgMakerPort}/db/pg`, {
+    method: "POST",
+    body: new url.URLSearchParams({
+        "receipt-url": `http://${os.hostname()}:${thisPort}/my-pg-connection`,
+        "database-name": "nics_test_db"
+    })
+});
+
+if (response.status !== 202 || response.status !== 200) {
+    console.log("there was an error trying to create `nics_test_db`:", response.status);
+    listener.close();
+}
+```
+
+The handler can do many things. It could call a shell script to do
+more, or a script that is passed in on the command line perhaps.
+
+For this to work, of course, this server with the url:
+
+```javascript
+`http://${os.hostname()}:7050/my-pg-connection`
+```
+
+must have been registered with the PgMaker service to be authorized to
+make the database, perhaps int the file
+`database-authorizations.json`; the exact mechanism used to store the
+authorized urls that can request a database is configurable with the
+PgMaker service.
 
