@@ -1,6 +1,6 @@
 {
   "name": "@nicferrier/pgmaker",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Helps make services which can makes postgres databases.",
   "main": "main.js",
   "scripts": {
@@ -11,6 +11,10 @@
     "postgres",
     "pg"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nicferrier/pgmaker"
+  },
   "author": "Nic Ferrier <ferriernic@gmail.com>",
   "license": "ISC",
   "dependencies": {
