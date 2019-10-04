@@ -1,6 +1,6 @@
 {
   "name": "@nicferrier/pgmaker",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Helps make services which can makes postgres databases.",
   "main": "main.js",
   "scripts": {
