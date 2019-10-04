@@ -126,13 +126,16 @@ const boot = async function (opts = {}) {
                 password
             });
 
-            const receiptResponse = await fetch(receiptUrl, {
+            const [receiptError, receiptResponse] = await fetch(receiptUrl, {
                 method: "POST",
                 body: receiptData
-            });
+            }).then(r => [undefined, r]).catch(e => [e]);
+
+            if (receiptError !== undefined) {
+            }
 
             databases[name] = password;
-            return receiptResponse.status;
+            // return receiptResponse.status; -- We shouldn't return here, we're in a loop!
         }
     };
 

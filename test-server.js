@@ -1,3 +1,4 @@
+const os = require("os");
 const assert = require("assert");
 const path = require("path");
 const url = require("url");
@@ -59,6 +60,7 @@ const test = async function () {
     // Assertions
     try {
         assert.ok(resultParams.name = "nics_test_db")
+        assert.ok(resultParams.host = os.hostname())
 
         // Try and connect to what we got back
         const dbConfig = {}

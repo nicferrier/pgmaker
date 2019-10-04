@@ -51,6 +51,7 @@ const path = require("path");
 if (require.main === module) {
   const keepieConfigFileName = path.join(__dirname, "database-authorizations.json");
   pgmaker({
+     apiPort: 8080,
      keepieConfigFn: pgmaker.keepieConfigFileMaker(keepieConfigFileName)
   })
 }
@@ -59,7 +60,7 @@ if (require.main === module) {
 where the file called `database-authorizations.json` does exist in the
 root of that repository and it's a JSON file that looks like this:
 
-```javsscript
+```javascript
 {
    "http://some-server-that-wants-a-db.example.com:8000/password": "the_db_it_wants",
    "http://server-needs-people-db.example.com:6001/receive": "people_db",
@@ -74,6 +75,12 @@ path `/password` and for `server-needs-people-db.example.com` and
 and receive it's connection details, including the secret, on their
 ports `6001` and `6002` respectively and their respective paths
 `/receive` and `/password`.
+
+### How to update the authorizations list
+
+The PgMaker service does repeatedly poll the `keepieConfigFn` to read
+in the config again. So you could add more authorized parties while
+the server is running simply by updating the file.
 
 ### How to start a TLS server
 
