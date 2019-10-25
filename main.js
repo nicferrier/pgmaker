@@ -32,6 +32,7 @@ const boot = async function (opts = {}) {
     let keepieConfig;
     const readConfig = async _ => {
         const cfgData = await keepieConfigFn();
+        console.log(`pgmaker ${new Date()} - read in the keepie config`);
         keepieConfig = cfgData;
     };
     await readConfig();
@@ -204,6 +205,7 @@ module.exports = boot;
 
 boot.keepieConfigFileMaker = keepieConfigFileMaker;
 boot.fileBasedKeepie = fileBasedKeepie;
+boot.startPg = startPg;
 
 if (require.main === module) {
     boot(); // Starts with defaults
