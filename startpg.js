@@ -28,11 +28,12 @@ const startIt = async function () {
 
     const hba = path.join(postgresDist.dataDir, "pg_hba.conf");
     const hbaFile = await fs.promises.readFile(hba, "utf-8");
-    const methodChanged = hbaFile.replace(
-        //  /^host[ \t](.*)[ \t]::1\/128[ \t]+trust$/gm, `host $1 ::1\/128 password`
-            /^host[ \t](.*)[ \t]::1\/128[ \t]+trust$/gm, `host $1 all password`
+    const intialHbaHack = hbaFile.replace(
+            /^host[ \t](.*)[ \t]::1\/128[ \t]+(.*)$/gm, "host $1 all trust"
+    ).replace(
+            /^host[ \t](.*)[ \t]127.0.0.1\/32[ \t]+(.*)$/gm, "host $1 all trust"
     );
-    await fs.promises.writeFile(hba, methodChanged);
+    await fs.promises.writeFile(hba, intialHbaHack);
 
 
     const exePath = path.join(postgresDist.binDir, "postgres");
@@ -96,6 +97,14 @@ const startIt = async function () {
         console.log("couldn't start the postgresql server");
         process.exit(1);
     }
+
+    // If it worked then set the pg_hba to allow password only
+    const methodChanged = hbaFile.replace(
+            /^host[ \t](.*)[ \t]::1\/128[ \t]+trust$/gm, `host $1 all password`
+    ).replace(
+            /^host[ \t](.*)[ \t]127.0.0.1\/32[ \t]+trust$/gm, `host $1 all password`
+    );
+    await fs.promises.writeFile(hba, methodChanged);
 
     return [pgChild, pgConfig];
 };
